@@ -35,7 +35,7 @@ if OUTPUT=$(curl https://api.openai.com/v1/completions \
       \"presence_penalty\": 0
     }"); then
     echo "got output"
-    echo $OUTPUT
+    echo $OUTPUT | jq '.choices[0].text' | sed -e 's/^\"//' -e 's/\"$//' -e 's/^ *//g' -e 's/ *$//g'
 else
     echo "Trouble getting a response rn."
     exit 1
