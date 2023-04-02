@@ -8,18 +8,19 @@ if [ -z "$OPENAI_API_KEY" ]; then
   exit 1
 fi
 
-# LAST_COMMAND=$(history | tail -1 | cut -d' ' -f 5-)
-# LAST_COMMAND="git commit -m 'track password file'"
-LAST_COMMAND="touch README.mdd"
-# LAST_DIRECTORY=$OLDPWD
-OS='macOS'
-SHELL=$SHELL
-# PROMPT="Using the terminal on $OS with zsh, I ran the command '$LAST_COMMAND'. To undo that action, I type\n\n$"
+# We use jq for parsing the response
+if which jq >/dev/null 2>&1; then
+  continue
+else
+  echo "Please install jq before continuing."
+  echo "https://stedolan.github.io/jq/download/"
+  exit 1
+fi
 
-# PROMPT="# Write a shell command that will undo the command, \`$LAST_COMMAND\`\n\n$"
+# Assume where we keep the history
+LAST_COMMAND=$(cat ~/.zsh_history | tail -1 | awk -F ";" '{print $2}')
+
 PROMPT="Create a shell command that undoes the given command\n\nExample 1: mkdir new-directory\nOutput 1: rmdir new-directory\n##\nExample 2: git add .\nOutput 2: git reset HEAD~1\n##\nExample 3: $LAST_COMMAND\nOutput 3:"
-
-echo "$PROMPT"
 
 if OUTPUT=$(curl https://api.openai.com/v1/completions \
       --silent \
@@ -34,8 +35,10 @@ if OUTPUT=$(curl https://api.openai.com/v1/completions \
       \"frequency_penalty\": 0.2,
       \"presence_penalty\": 0
     }"); then
-    echo "got output"
-    echo $OUTPUT | jq '.choices[0].text' | sed -e 's/^\"//' -e 's/\"$//' -e 's/^ *//g' -e 's/ *$//g'
+    SUGGEST=$(echo $OUTPUT | jq '.choices[0].text' | sed -e 's/^\"//' -e 's/\"$//' -e 's/^ *//g' -e 's/ *$//g')
+    echo "Press return to run:"
+    read -p "$SUGGEST"
+    eval "$SUGGEST"
 else
     echo "Trouble getting a response rn."
     exit 1
