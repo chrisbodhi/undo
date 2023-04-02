@@ -17,23 +17,23 @@ SHELL=$SHELL
 # PROMPT="Using the terminal on $OS with zsh, I ran the command '$LAST_COMMAND'. To undo that action, I type\n\n$"
 
 # PROMPT="# Write a shell command that will undo the command, \`$LAST_COMMAND\`\n\n$"
-PROMPT="Create a shell command that undoes the given command\n\nExample: mkdir new-directory\nOutput: rmdir new-directory\n\nExample: git add .\nOutput: git reset\n\n$LAST_COMMAND\n"
+PROMPT="Create a shell command that undoes the given command\n\nExample 1: mkdir new-directory\nOutput 1: rmdir new-directory\n##\nExample 2: git add .\nOutput 2: git reset HEAD~1\n##\nExample 3: $LAST_COMMAND\nOutput 3:"
 
 echo "$PROMPT"
 
 if OUTPUT=$(curl https://api.openai.com/v1/completions \
-        --silent \
-        -H 'Content-Type: application/json' \
-        -H "Authorization: Bearer $OPENAI_API_KEY" \
-        -d '{
-        "model": "text-davinci-003",
-        "prompt": "$PROMPT",
-        "max_tokens": 11,
-        "temperature": 0.2,
-        "top_p": 1,
-        "frequency_penalty": 0.2,
-        "presence_penalty": 0
-    }'); then
+      --silent \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -d "{
+      \"model\": \"text-davinci-003\",
+      \"prompt\": \"$PROMPT\",
+      \"temperature\": 0,
+      \"max_tokens\": 42,
+      \"top_p\": 1,
+      \"frequency_penalty\": 0.2,
+      \"presence_penalty\": 0
+    }"); then
     echo "got output"
     echo $OUTPUT
 else
