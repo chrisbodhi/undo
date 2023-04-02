@@ -18,7 +18,7 @@ else
 fi
 
 # Assume where we keep the history
-LAST_COMMAND=$(cat ~/.zsh_history | tail -1 | awk -F ";" '{print $2}')
+LAST_COMMAND=$(cat ~/.zsh_history | tail -2 | head -1 | awk -F ";" '{print $2}')
 
 PROMPT="Create a shell command that undoes the given command\n\nExample 1: mkdir new-directory\nOutput 1: rmdir new-directory\n##\nExample 2: git add .\nOutput 2: git reset HEAD~1\n##\nExample 3: $LAST_COMMAND\nOutput 3:"
 
